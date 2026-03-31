@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poética de la Fragmentación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080808;
+    --surface: #0f0f0f;
+    --surface2: #161616;
+    --border: #222;
+    --accent: #ff2d78;
+    --accent2: #00e5ff;
+    --accent3: #b8ff57;
+    --text: #f0ece4;
+    --text-muted: #999;
+    --text-dim: #555;
+    --lit: #ff2d78;
+    --cin: #00e5ff;
+    --mus: #b8ff57;
+    --vis: #ff9f1c;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-serif: 'Cormorant Garamond', serif;
+    /* On-accent text colors: color to use FOR TEXT when sitting on top of a discipline color */
+  --on-lit: #fff;
+  --on-cin: #003a47;
+  --on-mus: #1a2e00;
+  --on-vis: #fff;
+
+    --modal-overlay-bg: rgba(0,0,0,0.85);
+    --modal-desc-color: rgba(240,236,228,0.8);
+    --modal-quote-bg: rgba(255,255,255,0.02);
+    --tick-line: #444;
+    --tick-label: #666;
+    --era-label-color: #444;
+    --era-band-border: #252525;
+    --axis-border: #333;
+  }
+
+  :root.light {
+    --bg: #f4f1eb;
+    --surface: #ede9e0;
+    --surface2: #e4dfd4;
+    --border: #ccc8be;
+    --accent: #d4004a;
+    --accent2: #0077aa;
+    --accent3: #4a8c00;
+    --text: #1a1714;
+    --text-muted: #5a5550;
+    --text-dim: #8a8480;
+    --lit: #d4004a;
+    --cin: #0077aa;
+    --mus: #4a8c00;
+    --vis: #c26a00;
+    --on-lit: #fff;
+    --on-cin: #fff;
+    --on-mus: #fff;
+    --on-vis: #fff;
+    --hero-bg-gradient: radial-gradient(ellipse 80% 60% at 50% 50%, #ffe0ec 0%, #f4f1eb 70%);
+    --modal-overlay-bg: rgba(180,175,165,0.75);
+    --modal-desc-color: rgba(26,23,20,0.82);
+    --modal-quote-bg: rgba(0,0,0,0.03);
+    --tick-line: #aaa;
+    --tick-label: #888;
+    --era-label-color: #aaa;
+    --era-band-border: #d8d4ca;
+    --axis-border: #ccc;
+  }
+
+  /* ─── THEME TOGGLE ─── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+
+  .theme-toggle-btn {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: none;
+    transition: background 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle-btn::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+  }
+
+  :root.light .theme-toggle-btn { background: #ddd9ce; border-color: #bbb; }
+  :root.light .theme-toggle-btn::after { transform: translateX(20px); background: var(--accent); }
+
+  .theme-icon {
+    font-size: 13px;
+    line-height: 1;
+    user-select: none;
+    transition: opacity 0.2s;
+  }
+  .theme-icon.moon { opacity: 1; }
+  .theme-icon.sun  { opacity: 0.4; }
+  :root.light .theme-icon.moon { opacity: 0.4; }
+  :root.light .theme-icon.sun  { opacity: 1; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Smooth theme transition */
+  html { transition: background 0.4s, color 0.4s; }
+  body, header, .modal, .connection-card, .track-label, .node-dot { transition-property: background, color, border-color; transition-duration: 0.35s; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: exclusion;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,45,120,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+  }
+  body:has(.node:hover) .cursor { width: 20px; height: 20px; background: var(--accent2); }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 500;
+  }
+
+  .logo {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-nav {
+    display: flex;
+    gap: 6px;
+  }
+  .header-nav button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 5px 12px;
+    cursor: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .header-nav button:hover,
+  .header-nav button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+  :root.light .header-nav button:hover,
+  :root.light .header-nav button.active { color: #fff; }
+  .header-nav button[data-filter="literatura"].active { background: var(--lit); border-color: var(--lit); color: #000; }
+  .header-nav button[data-filter="cine"].active { background: var(--cin); border-color: var(--cin); color: #000; }
+  .header-nav button[data-filter="musica"].active { background: var(--mus); border-color: var(--mus); color: #000; }
+  .header-nav button[data-filter="visuales"].active { background: var(--vis); border-color: var(--vis); color: #000; }
+  :root.light .header-nav button[data-filter="literatura"].active,
+  :root.light .header-nav button[data-filter="cine"].active,
+  :root.light .header-nav button[data-filter="musica"].active,
+  :root.light .header-nav button[data-filter="visuales"].active { color: #fff; }
+
+  /* ─── HERO ─── */
+  .hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: var(--hero-bg-gradient);
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,45,120,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,45,120,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  .hero-content {
+    position: relative;
+    text-align: center;
+    width: calc(100% - 48px);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0;
+    /* Declare as container so children can use cqi units */
+    container-type: inline-size;
+    container-name: hero;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  .hero-pretitle {
+    font-size: clamp(16px, 2.8vw, 38px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.25s;
+  }
+
+  /* ── Letter grid: two flex rows, sizes in cqi ── */
+  .hero-letters {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0.82;
+    margin-bottom: 24px;
+  }
+
+  .hero-letters-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+  }
+  .hero-letters-row + .hero-letters-row {
+    align-items: flex-start;
+  }
+
+  .ltr {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    background: linear-gradient(150deg, var(--accent) 0%, #ff8c42 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    flex-shrink: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* Row 1 — sizes in cqi, sum ≈ 78cqi */
+  .ltr-F   { font-size: 18cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.40s; transform: translate(-6cqi, -4cqi) rotate(-8deg);  }
+  .ltr-R   { font-size: 10cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.52s; transform: translate(0,     -8cqi) rotate( 5deg);  }
+  .ltr-A   { font-size: 14cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.38s; transform: translate( 5cqi,  4cqi) rotate(-3deg);  }
+  .ltr-G   { font-size:  8cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.60s; transform: translate(-3cqi,  6cqi) rotate(12deg);  }
+  .ltr-M   { font-size: 20cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.44s; transform: translate( 8cqi, -5cqi) rotate( 4deg);  }
+  .ltr-E   { font-size:  8cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.68s; transform: translate( 4cqi,  7cqi) rotate(-10deg); }
+
+  /* Row 2 — sum ≈ 70cqi */
+  .ltr-DOT { font-size:  6cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.74s; transform: translate(-5cqi,  5cqi) rotate( 7deg);  }
+  .ltr-N   { font-size: 13cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.56s; transform: translate(0,      9cqi) rotate(-5deg);  }
+  .ltr-T   { font-size: 10cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.63s; transform: translate(-4cqi, -5cqi) rotate( 9deg);  }
+  .ltr-A2  { font-size: 16cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.48s; transform: translate( 6cqi,  5cqi) rotate(-6deg);  }
+  .ltr-CI  { font-size:  9cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.70s; transform: translate( 4cqi, -7cqi) rotate( 4deg);  }
+  .ltr-ON  { font-size: 13cqi; animation: ltrIn 0.75s cubic-bezier(0.22,1,0.36,1) forwards 0.58s; transform: translate( 7cqi,  4cqi) rotate(-9deg);  }
+
+  @keyframes ltrIn {
+    to { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  }
+
+  .hero-sub {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(14px, 1.5vw, 19px);
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.65;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 1.0s;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: 1px solid rgba(255,45,120,0.4);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.3s;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 1.25s;
+  }
+  .hero-cta:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    transform: translateY(-2px);
+  }
+  :root.light .hero-cta:hover { color: #fff; }
+  .hero-cta .arrow { transition: transform 0.3s; }
+  .hero-cta:hover .arrow { transform: translateY(4px); }
+
+  .hero-era-labels {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 40px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards 1.2s;
+  }
+
+  .era-label {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .era-label strong { display: block; color: var(--text-muted); font-size: 13px; margin-bottom: 4px; font-family: var(--font-display); font-weight: 600; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ─── TIMELINE SECTION ─── */
+  .timeline-section {
+    padding: 80px 0 120px;
+    position: relative;
+  }
+
+  .section-header {
+    padding: 0 40px;
+    margin-bottom: 60px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .zoom-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .zoom-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: none;
+    font-size: 18px;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .zoom-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+  .zoom-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    min-width: 36px;
+    text-align: center;
+  }
+
+  /* ─── SCROLLABLE TIMELINE ─── */
+  .timeline-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 40px 40px 60px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--surface2);
+    position: relative;
+  }
+  .timeline-wrapper::-webkit-scrollbar { height: 4px; }
+  .timeline-wrapper::-webkit-scrollbar-track { background: var(--surface2); }
+  .timeline-wrapper::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+  .timeline-inner {
+    position: relative;
+    min-width: max-content;
+    padding-bottom: 80px;
+    transition: transform 0.3s;
+  }
+
+  /* Era bands */
+  .era-bands {
+    display: flex;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .era-band {
+    height: 100%;
+    border-right: 1px solid var(--border);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .era-band-label {
+    position: absolute;
+    top: 0; left: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    writing-mode: horizontal-tb;
+    padding-top: 8px;
+  }
+
+  /* Time axis */
+  .time-axis {
+    display: flex;
+    align-items: flex-end;
+    height: 60px;
+    position: relative;
+    margin-bottom: 40px;
+  }
+
+  .time-tick {
+    position: absolute;
+    bottom: 0;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .time-tick-line {
+    width: 1px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  .time-tick-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+
+  /* Track lanes */
+  .tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    position: relative;
+  }
+
+  .track-label {
+    position: sticky;
+    left: 0;
+    width: 110px;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+    background: var(--bg);
+    padding-right: 16px;
+  }
+
+  .track-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .track-line {
+    position: absolute;
+    left: 110px;
+    right: 0;
+    height: 1px;
+    top: 50%;
+  }
+
+  .track[data-discipline="literatura"] .track-line { background: linear-gradient(90deg, var(--lit), transparent); opacity: 0.3; }
+  .track[data-discipline="cine"] .track-line { background: linear-gradient(90deg, var(--cin), transparent); opacity: 0.3; }
+  .track[data-discipline="musica"] .track-line { background: linear-gradient(90deg, var(--mus), transparent); opacity: 0.3; }
+  .track[data-discipline="visuales"] .track-line { background: linear-gradient(90deg, var(--vis), transparent); opacity: 0.3; }
+
+  .track[data-discipline="literatura"] .track-dot,
+  .track[data-discipline="literatura"] .track-label { color: var(--lit); }
+  .track[data-discipline="literatura"] .track-dot { background: var(--lit); }
+
+  .track[data-discipline="cine"] .track-dot,
+  .track[data-discipline="cine"] .track-label { color: var(--cin); }
+  .track[data-discipline="cine"] .track-dot { background: var(--cin); }
+
+  .track[data-discipline="musica"] .track-dot,
+  .track[data-discipline="musica"] .track-label { color: var(--mus); }
+  .track[data-discipline="musica"] .track-dot { background: var(--mus); }
+
+  .track[data-discipline="visuales"] .track-dot,
+  .track[data-discipline="visuales"] .track-label { color: var(--vis); }
+  .track[data-discipline="visuales"] .track-dot { background: var(--vis); }
+
+  /* Nodes */
+  .node {
+    position: absolute;
+    transform: translateX(-50%);
+    top: 50%;
+    margin-top: -20px;
+    cursor: none;
+    z-index: 20;
+  }
+
+  .node-dot {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: var(--bg);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  .node-dot::before {
+    content: '';
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .node:hover .node-dot {
+    transform: scale(1.3);
+  }
+
+  .node:hover .node-dot::before {
+    opacity: 1;
+  }
+
+  .track[data-discipline="literatura"] .node-dot { border-color: var(--lit); color: var(--lit); }
+  .track[data-discipline="literatura"] .node-dot::before { background: radial-gradient(circle, rgba(255,45,120,0.2), transparent 70%); }
+  .track[data-discipline="literatura"] .node:hover .node-dot { background: var(--lit); color: var(--on-lit); box-shadow: 0 0 30px rgba(255,45,120,0.5); }
+
+  .track[data-discipline="cine"] .node-dot { border-color: var(--cin); color: var(--cin); }
+  .track[data-discipline="cine"] .node-dot::before { background: radial-gradient(circle, rgba(0,229,255,0.2), transparent 70%); }
+  .track[data-discipline="cine"] .node:hover .node-dot { background: var(--cin); color: var(--on-cin); box-shadow: 0 0 30px rgba(0,229,255,0.5); }
+
+  .track[data-discipline="musica"] .node-dot { border-color: var(--mus); color: var(--mus); }
+  .track[data-discipline="musica"] .node-dot::before { background: radial-gradient(circle, rgba(184,255,87,0.2), transparent 70%); }
+  .track[data-discipline="musica"] .node:hover .node-dot { background: var(--mus); color: var(--on-mus); box-shadow: 0 0 30px rgba(184,255,87,0.5); }
+
+  .track[data-discipline="visuales"] .node-dot { border-color: var(--vis); color: var(--vis); }
+  .track[data-discipline="visuales"] .node-dot::before { background: radial-gradient(circle, rgba(255,159,28,0.2), transparent 70%); }
+  .track[data-discipline="visuales"] .node:hover .node-dot { background: var(--vis); color: var(--on-vis); box-shadow: 0 0 30px rgba(255,159,28,0.5); }
+
+  .node-year {
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .node:hover .node-year { color: var(--text-muted); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--modal-overlay-bg);
+    backdrop-filter: blur(12px);
+    z-index: 800;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    max-width: 680px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+  }
+
+  .modal-overlay.active .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-accent-bar {
+    height: 3px;
+    width: 100%;
+  }
+
+  .modal-body { padding: 36px; }
+
+  .modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .modal-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+
+  .modal-year {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .modal-discipline {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-left: 1px solid var(--border);
+    padding-left: 12px;
+  }
+
+  .modal-title {
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .modal-creator {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .modal-description {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--modal-desc-color);
+    margin-bottom: 24px;
+  }
+
+  .modal-quote {
+    border-left: 2px solid;
+    padding: 16px 20px;
+    margin: 24px 0;
+    background: var(--modal-quote-bg);
+  }
+
+  .modal-quote p {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+
+  .modal-quote cite {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .modal-connections {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .modal-connections h4 {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .connection-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .connection-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    cursor: none;
+  }
+
+  .connection-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  .modal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: 1px solid;
+    transition: all 0.2s;
+    cursor: none;
+  }
+
+  .modal-link:hover { color: #000; }
+  :root.light .modal-link:hover { color: #fff; }
+
+  .modal-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: none;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { background: var(--accent); border-color: var(--accent); color: #000; }
+
+  /* ─── CONNECTIONS SECTION ─── */
+  .connections-section {
+    padding: 80px 40px;
+    border-top: 1px solid var(--border);
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+
+  .connections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  .connection-card {
+    background: var(--bg);
+    padding: 32px;
+    transition: background 0.2s;
+    cursor: none;
+  }
+
+  .connection-card:hover { background: var(--surface2); }
+
+  .connection-arrow {
+    font-size: 20px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .connection-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .connection-desc {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ─── LEGEND ─── */
+  .legend {
+    display: flex;
+    gap: 24px;
+    padding: 0 40px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footer-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-text strong { color: var(--text-muted); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    header { padding: 0 16px; }
+    .header-nav button:not(.theme-toggle-btn) { display: none; }
+    .theme-toggle { margin-left: 0; padding-left: 0; border-left: none; }
+    .hero-era-labels { display: none; }
+    .section-header, .legend { padding: 0 20px; }
+    .timeline-wrapper { padding: 20px 20px 40px; }
+    .connections-section { padding: 60px 20px; }
+    footer { padding: 20px; }
+    .modal-body { padding: 24px; }
+  }
+
+  /* ─── FILTER STATES ─── */
+  .track.hidden { opacity: 0.12; pointer-events: none; }
+  .track { transition: opacity 0.4s; }
+
+  /* Pulse animation for important nodes */
+  @keyframes nodePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,120,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255,45,120,0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Poética <span>/</span> Fragmentación</div>
+  <nav class="header-nav">
+    <button data-filter="all" class="active" onclick="filterDiscipline('all', this)">Todo</button>
+    <button data-filter="literatura" onclick="filterDiscipline('literatura', this)">Literatura</button>
+    <button data-filter="cine" onclick="filterDiscipline('cine', this)">Cine</button>
+    <button data-filter="musica" onclick="filterDiscipline('musica', this)">Música</button>
+    <button data-filter="visuales" onclick="filterDiscipline('visuales', this)">Artes Visuales</button>
+    <div class="theme-toggle">
+      <span class="theme-icon moon">🌙</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Cambiar tema"></button>
+      <span class="theme-icon sun">☀️</span>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Diagrama cronológico · 1910–2024</div>
+    <div class="hero-pretitle">Poética de la</div>
+
+    <div class="hero-letters" role="img" aria-label="Fragmentación">
+      <div class="hero-letters-row">
+        <span class="ltr ltr-F">F</span>
+        <span class="ltr ltr-R">R</span>
+        <span class="ltr ltr-A">A</span>
+        <span class="ltr ltr-G">G</span>
+        <span class="ltr ltr-M">M</span>
+        <span class="ltr ltr-E">E</span>
+      </div>
+      <div class="hero-letters-row">
+        <span class="ltr ltr-DOT">·</span>
+        <span class="ltr ltr-N">N</span>
+        <span class="ltr ltr-T">T</span>
+        <span class="ltr ltr-A2">A</span>
+        <span class="ltr ltr-CI">CI</span>
+        <span class="ltr ltr-ON">ÓN</span>
+      </div>
+    </div>
+
+    <p class="hero-sub">De las vanguardias europeas al posmodernismo latinoamericano y la música experimental contemporánea</p>
+    <a href="#timeline" class="hero-cta">
+      Explorar la línea de tiempo
+      <span class="arrow">↓</span>
+    </a>
+  </div>
+  <div class="hero-era-labels">
+    <div class="era-label"><strong>1910s–40s</strong>Vanguardias</div>
+    <div class="era-label"><strong>1950s–70s</strong>Neoav. & Boom</div>
+    <div class="era-label"><strong>1980s–90s</strong>Posmodernismo</div>
+    <div class="era-label"><strong>2000s–hoy</strong>Digital & Experimental</div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-section" id="timeline">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Cronología</div>
+      <h2 class="section-title">Hitos de la Ruptura</h2>
+    </div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
+      <div class="zoom-label" id="zoomLabel">100%</div>
+      <button class="zoom-btn" onclick="changeZoom(1)">+</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--lit)"></div>Literatura</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cin)"></div>Cine</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--mus)"></div>Música</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--vis)"></div>Artes Visuales</div>
+  </div>
+
+  <div class="timeline-wrapper" id="timelineWrapper">
+    <div class="timeline-inner" id="timelineInner">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- CONNECTIONS -->
+<section class="connections-section">
+  <div class="section-label">Genealogía de ideas</div>
+  <h2 class="section-title">Conexiones entre tradiciones</h2>
+
+  <div class="connections-grid">
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--accent)">→</span>
+      <div class="connection-title">Cubismo → Collage literario</div>
+      <p class="connection-desc">La fragmentación espacial de Picasso inspira la escritura en montaje de Dos Passos y Apollinaire.</p>
+    </div>
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--cin)">→</span>
+      <div class="connection-title">Eisenstein → Godard → Cortázar</div>
+      <p class="connection-desc">El montaje soviético deriva en la nouvelle vague y la narrativa en capítulos intercambiables de <em>Rayuela</em>.</p>
+    </div>
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--mus)">→</span>
+      <div class="connection-title">Schönberg → Cage → Música concreta</div>
+      <p class="connection-desc">La atonalidad destruye la jerarquía tonal; Cage introduce el silencio; Pierre Schaeffer fragmenta el sonido grabado.</p>
+    </div>
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--vis)">→</span>
+      <div class="connection-title">Dadá → Arte conceptual → Net Art</div>
+      <p class="connection-desc">El anti-arte de Tzara deviene performance conceptual y luego glitch art digital en la era de internet.</p>
+    </div>
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--lit)">→</span>
+      <div class="connection-title">Borges → McOndo → Hipertexto</div>
+      <p class="connection-desc">Los laberintos borgianos anticipan la narrativa hipertextual y la no-linealidad de la literatura digital latinoamericana.</p>
+    </div>
+    <div class="connection-card">
+      <span class="connection-arrow" style="color:var(--mus)">→</span>
+      <div class="connection-title">Musique acousmatique → Sampling → Plunderphonics</div>
+      <p class="connection-desc">De la electroacústica europea al hip-hop y Matmos: el fragmento sonoro como cita y apropiación radical.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-text"><strong>Poética de la Fragmentación</strong> · Diagrama cronológico 1910–2024</div>
+  <div class="footer-text">Literatura · Cine · Música · Artes Visuales</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-accent-bar" id="modalBar"></div>
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="modal-tag" id="modalTag"></span>
+        <span class="modal-discipline" id="modalDiscipline"></span>
+      </div>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-creator" id="modalCreator"></div>
+      <p class="modal-description" id="modalDesc"></p>
+      <div class="modal-quote" id="modalQuoteBlock">
+        <p id="modalQuote"></p>
+        <cite id="modalCite"></cite>
+      </div>
+      <div class="modal-connections">
+        <h4>Conexiones y resonancias</h4>
+        <div class="connection-tags" id="modalTags"></div>
+      </div>
+      <a class="modal-link" id="modalLink" target="_blank" rel="noopener"></a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const events = [
+  // LITERATURA
+  {
+    id: 'mallarmé', year: 1897, discipline: 'literatura', emoji: '📖',
+    title: 'Un coup de dés', creator: 'Stéphane Mallarmé',
+    desc: 'Poema tipográfico que distribuye el texto fragmentado en el espacio de la página como partitura visual. Primer gran manifiesto de la escritura espacial y discontinua.',
+    quote: '"Un lanzamiento de dados jamás abolirá el azar."',
+    cite: '— Stéphane Mallarmé, 1897',
+    tags: ['Simbolismo', 'Poesía concreta', 'Apollinaire', 'e.e. cummings'],
+    link: 'https://es.wikipedia.org/wiki/Un_coup_de_d%C3%A9s_jamais_n%27abolira_le_hasard'
+  },
+  {
+    id: 'apollinaire', year: 1913, discipline: 'literatura', emoji: '🌀',
+    title: 'Caligramas', creator: 'Guillaume Apollinaire',
+    desc: 'Poemas que adoptan la forma visual del objeto descrito. La fragmentación tipográfica y el montaje de voces anticipa el stream of consciousness.',
+    quote: '"Venís de un mundo extinguido."',
+    cite: '— Apollinaire, Calligrams, 1918',
+    tags: ['Vanguardia francesa', 'Futurismo', 'Tzara', 'Poesía concreta'],
+    link: 'https://es.wikipedia.org/wiki/Caligramas_(Apollinaire)'
+  },
+  {
+    id: 'dadaismo', year: 1916, discipline: 'literatura', emoji: '✂️',
+    title: 'Manifiesto Dadá', creator: 'Tristan Tzara',
+    desc: 'Tzara propone cortar un artículo de periódico en palabras, mezclarlas en una bolsa y extraerlas al azar. El poema como radical desarticulación del lenguaje burgués.',
+    quote: '"Tome un periódico. Tome unas tijeras."',
+    cite: '— Tristan Tzara, instrucciones para un poema dadaísta, 1920',
+    tags: ['Dadá', 'Cut-up', 'William Burroughs', 'Azar'],
+    link: 'https://es.wikipedia.org/wiki/Dad%C3%A1'
+  },
+  {
+    id: 'eliot', year: 1922, discipline: 'literatura', emoji: '🏚️',
+    title: 'La tierra baldía', creator: 'T.S. Eliot',
+    desc: 'Poema fundacional del modernismo anglófono. Voces fragmentadas, citas múltiples, cambios de idioma y de registro que recomponen la posguerra como escombros culturales.',
+    quote: '"These fragments I have shored against my ruins."',
+    cite: '— T.S. Eliot, The Waste Land, 1922',
+    tags: ['Modernismo', 'Intertextualidad', 'Pound', 'Montaje'],
+    link: 'https://es.wikipedia.org/wiki/La_tierra_bald%C3%ADa'
+  },
+  {
+    id: 'woolf', year: 1925, discipline: 'literatura', emoji: '🌊',
+    title: 'La señora Dalloway', creator: 'Virginia Woolf',
+    desc: 'La novela desmantela la cronología lineal mediante el flujo de conciencia: múltiples perspectivas que se alternan, el tiempo subjetivo fragmentando el tiempo social.',
+    quote: '"Ella existía incluso cuando no la veían."',
+    cite: '— Virginia Woolf, Mrs Dalloway, 1925',
+    tags: ['Stream of consciousness', 'Joyce', 'Subjetividad', 'Modernismo'],
+    link: 'https://es.wikipedia.org/wiki/La_se%C3%B1ora_Dalloway'
+  },
+  {
+    id: 'borges', year: 1944, discipline: 'literatura', emoji: '🔮',
+    title: 'Ficciones', creator: 'Jorge Luis Borges',
+    desc: 'Laberintos narrativos donde la biblioteca es infinita, el tiempo se bifurca y la identidad se pluraliza. Borges convierte la fragmentación en epistemología: conocer es nunca conocer del todo.',
+    quote: '"El tiempo se bifurca perpetuamente hacia futuros innumerables."',
+    cite: '— Borges, "El jardín de senderos que se bifurcan", 1941',
+    tags: ['Posmodernismo', 'Cortázar', 'Hipertexto', 'Laberinto'],
+    link: 'https://es.wikipedia.org/wiki/Ficciones'
+  },
+  {
+    id: 'cortazar', year: 1963, discipline: 'literatura', emoji: '🎲',
+    title: 'Rayuela', creator: 'Julio Cortázar',
+    desc: 'Novela con instrucciones de lectura múltiples: el lector puede seguir el orden convencional o saltar según un tablero. La fragmentación como forma de libertad y de juego.',
+    quote: '"¿Encontraría a la Maga?"',
+    cite: '— Julio Cortázar, Rayuela, 1963',
+    tags: ['Boom latinoamericano', 'Borges', 'Nouveau roman', 'Lector activo'],
+    link: 'https://es.wikipedia.org/wiki/Rayuela_(novela)'
+  },
+  {
+    id: 'burroughs', year: 1959, discipline: 'literatura', emoji: '🔪',
+    title: 'El almuerzo desnudo', creator: 'William S. Burroughs',
+    desc: 'Escritura mediante cut-up: los textos se cortan físicamente y se reensamblan al azar. La narrativa lineal como prisión; la fragmentación como fuga.',
+    quote: '"La palabra es un virus."',
+    cite: '— William S. Burroughs, The Electronic Revolution, 1970',
+    tags: ['Beat generation', 'Cut-up', 'Tzara', 'Posmodernismo'],
+    link: 'https://es.wikipedia.org/wiki/El_almuerzo_desnudo'
+  },
+  {
+    id: 'bolaño', year: 2004, discipline: 'literatura', emoji: '🌃',
+    title: '2666', creator: 'Roberto Bolaño',
+    desc: 'Cinco novelas dentro de una, unidas por Ciudad Juárez como centro oscuro. La fragmentación es violencia estructural: lo que no puede nombrarse se dispersa en múltiples voces.',
+    quote: '"El mal existe, pero el mal principal es el olvido."',
+    cite: '— Roberto Bolaño, 2666, 2004',
+    tags: ['Posmodernismo latinoamericano', 'Bolaño', 'Narrativa coral', 'Violencia'],
+    link: 'https://es.wikipedia.org/wiki/2666'
+  },
+  {
+    id: 'zambra', year: 2011, discipline: 'literatura', emoji: '📝',
+    title: 'Formas de volver a casa', creator: 'Alejandro Zambra',
+    desc: 'Metaficción chilena que fragmenta el relato entre novela, autobiografía y ensayo. La dictadura como ruptura que se filtra en la sintaxis misma.',
+    quote: '"Éramos personajes secundarios en nuestras propias vidas."',
+    cite: '— Alejandro Zambra, Formas de volver a casa, 2011',
+    tags: ['Literatura chilena', 'Metaficción', 'Bolaño', 'Memoria'],
+    link: 'https://es.wikipedia.org/wiki/Alejandro_Zambra'
+  },
+
+  // CINE
+  {
+    id: 'eisenstein', year: 1925, discipline: 'cine', emoji: '🎬',
+    title: 'El acorazado Potemkin', creator: 'Sergei Eisenstein',
+    desc: 'Teoría del montaje de atracciones: el choque entre planos crea significados imposibles en una sola imagen. La fragmentación fílmica como dialéctica política.',
+    quote: '"Dos fragmentos cinematográficos de cualquier tipo colocados juntos inevitablemente crean un nuevo concepto."',
+    cite: '— Sergei Eisenstein, Film Form, 1929',
+    tags: ['Montaje soviético', 'Godard', 'Cine político', 'Dialéctica'],
+    link: 'https://es.wikipedia.org/wiki/El_acorazado_Potemkin'
+  },
+  {
+    id: 'bunuel', year: 1929, discipline: 'cine', emoji: '👁️',
+    title: 'Un perro andaluz', creator: 'Luis Buñuel & Salvador Dalí',
+    desc: 'El manifiesto del cine surrealista: imágenes oníricas sin causalidad narrativa. La lógica del sueño fragmenta la continuidad cinematográfica en pura asociación libre.',
+    quote: '"El único método que funcionaba para nosotros era que ninguna imagen pudiera explicarse racionalmente."',
+    cite: '— Luis Buñuel, Mi último suspiro, 1982',
+    tags: ['Surrealismo', 'Cine onírico', 'Lynch', 'Anti-narrativa'],
+    link: 'https://es.wikipedia.org/wiki/Un_perro_andaluz'
+  },
+  {
+    id: 'godard', year: 1960, discipline: 'cine', emoji: '🎞️',
+    title: 'Al final de la escapada', creator: 'Jean-Luc Godard',
+    desc: 'Jump cuts que rompen la continuidad espacio-temporal. Godard hace visible el corte, revela el artificio: el cine como fragmento consciente de sí mismo.',
+    quote: '"Un film es la vida de alguien que ha pasado a través del objetivo de una cámara."',
+    cite: '— Jean-Luc Godard',
+    tags: ['Nouvelle Vague', 'Jump cut', 'Auteur', 'Eisenstein'],
+    link: 'https://es.wikipedia.org/wiki/Al_final_de_la_escapada'
+  },
+  {
+    id: 'resnais', year: 1961, discipline: 'cine', emoji: '🌀',
+    title: 'El año pasado en Marienbad', creator: 'Alain Resnais',
+    desc: 'La memoria como laberinto sin solución: el pasado, el presente y la alucinación coexisten sin jerarquía temporal. El guión de Robbe-Grillet fragmenta la causalidad.',
+    quote: '"Ya sea que usted haya estado aquí antes o no."',
+    cite: '— Alain Robbe-Grillet, guión, 1961',
+    tags: ['Nouveau roman', 'Memoria', 'Resnais', 'Anti-narrativa'],
+    link: 'https://es.wikipedia.org/wiki/El_a%C3%B1o_pasado_en_Marienbad'
+  },
+  {
+    id: 'glauber', year: 1964, discipline: 'cine', emoji: '🌵',
+    title: 'Dios y el diablo en la tierra del sol', creator: 'Glauber Rocha',
+    desc: 'Cinema Novo brasileiro: fragmentación narrativa al servicio de la violencia social latinoamericana. La cámara en mano y el montaje áspero rechazan el pulimento del cine de estudio.',
+    quote: '"Una idea en la cabeza y una cámara en la mano."',
+    cite: '— Glauber Rocha, "Estética del hambre", 1965',
+    tags: ['Cinema Novo', 'Tercer cine', 'Fragmentación política', 'Brasil'],
+    link: 'https://es.wikipedia.org/wiki/Dios_y_el_Diablo_en_la_Tierra_del_Sol'
+  },
+  {
+    id: 'solanas', year: 1968, discipline: 'cine', emoji: '✊',
+    title: 'La hora de los hornos', creator: 'Solanas & Getino',
+    desc: 'Documental político de 4 horas en tres partes. El montaje panfletario, los intertítulos, el sonido fragmentado: el Tercer Cine argentino como arma de liberación.',
+    quote: '"El cine es el arma más importante para la revolución."',
+    cite: '— Fernando Solanas',
+    tags: ['Tercer cine', 'Argentina', 'Documental', 'Cine político'],
+    link: 'https://es.wikipedia.org/wiki/La_hora_de_los_hornos'
+  },
+  {
+    id: 'kubrick', year: 1968, discipline: 'cine', emoji: '🌌',
+    title: '2001: Odisea del espacio', creator: 'Stanley Kubrick',
+    desc: 'El elipsis más famoso del cine: de un hueso en el aire a una nave espacial en órbita. La fragmentación temporal radical como expresión de la evolución y la alienación.',
+    quote: '"Abre la compuerta del módulo HAL, por favor."',
+    cite: '— 2001: A Space Odyssey, 1968',
+    tags: ['Elipsis', 'Ciencia ficción', 'Fragmentación temporal', 'Intertítulos'],
+    link: 'https://es.wikipedia.org/wiki/2001:_A_Space_Odyssey'
+  },
+  {
+    id: 'lynch', year: 2001, discipline: 'cine', emoji: '🔴',
+    title: 'Mulholland Drive', creator: 'David Lynch',
+    desc: 'La narrativa se fractura en su segunda mitad revelando que lo anterior era sueño. Los fragmentos no se recomponen: Lynch lleva el surrealismo buñueliano a Hollywood.',
+    quote: '"Silencio."',
+    cite: '— David Lynch, Mulholland Drive, 2001',
+    tags: ['Surrealismo', 'Buñuel', 'Post-clásico', 'Psicoanálisis'],
+    link: 'https://es.wikipedia.org/wiki/Mulholland_Drive_(pel%C3%ADcula)'
+  },
+  {
+    id: 'reygadas', year: 2012, discipline: 'cine', emoji: '🌾',
+    title: 'Post Tenebras Lux', creator: 'Carlos Reygadas',
+    desc: 'El cineasta mexicano fragmenta los géneros y los tiempos narrativos con planos contemplativos y rupturas lógicas. El cine lento latinoamericano como estética de lo inconcluso.',
+    quote: '"El tiempo es una ilusión que construimos juntos."',
+    cite: '— Carlos Reygadas',
+    tags: ['Cine lento', 'México', 'Post-narrativo', 'Contemplación'],
+    link: 'https://es.wikipedia.org/wiki/Post_Tenebras_Lux'
+  },
+
+  // MÚSICA
+  {
+    id: 'schoenberg', year: 1908, discipline: 'musica', emoji: '🎼',
+    title: 'Tres piezas para piano Op. 11', creator: 'Arnold Schönberg',
+    desc: 'Primera música completamente atonal: la jerarquía armónica se fragmenta. La tonalidad como sistema de expectativas que Schönberg destruye sistemáticamente.',
+    quote: '"Emancipación de la disonancia."',
+    cite: '— Arnold Schönberg',
+    tags: ['Atonalidad', 'Segunda Escuela de Viena', 'Webern', 'Serialismo'],
+    link: 'https://es.wikipedia.org/wiki/Arnold_Sch%C3%B6nberg'
+  },
+  {
+    id: 'stravinski', year: 1913, discipline: 'musica', emoji: '🩰',
+    title: 'La consagración de la primavera', creator: 'Igor Stravinsky',
+    desc: 'Ritmos fracturados, polirritmos, cambios de compás radicales. El escándalo del estreno parisino: la fragmentación rítmica como violencia sonora y renovación total de la música occidental.',
+    quote: '"El mejor modo de desobedecer es obedecer completamente."',
+    cite: '— Igor Stravinsky',
+    tags: ['Modernismo musical', 'Ritos', 'Polirritmo', 'Ballet Ruso'],
+    link: 'https://es.wikipedia.org/wiki/La_consagraci%C3%B3n_de_la_primavera'
+  },
+  {
+    id: 'cage', year: 1952, discipline: 'musica', emoji: '🤫',
+    title: '4\'33"', creator: 'John Cage',
+    desc: 'Cuatro minutos y treinta y tres segundos de silencio. El sonido ambiental y el ruido accidental se convierten en música. La fragmentación del silencio como acto compositivo radical.',
+    quote: '"No hay silencio. Siempre hay algo que escuchar."',
+    cite: '— John Cage, Silence, 1961',
+    tags: ['Silencio', 'Azar', 'Musique concrète', 'Fluxus'],
+    link: 'https://es.wikipedia.org/wiki/4%E2%80%B233%E2%80%B3'
+  },
+  {
+    id: 'schaeffer', year: 1948, discipline: 'musica', emoji: '💿',
+    title: 'Études de bruits', creator: 'Pierre Schaeffer',
+    desc: 'Fundación de la musique concrète: grabaciones de trenes, trompos, sonidos cotidianos manipulados y montados como collage sonoro. El sonido fragmentado de su contexto.',
+    quote: '"El objeto sonoro es sonido en sí mismo, no en su fuente."',
+    cite: '— Pierre Schaeffer',
+    tags: ['Música concreta', 'Electroacústica', 'Grabación', 'Collage sonoro'],
+    link: 'https://es.wikipedia.org/wiki/Pierre_Schaeffer'
+  },
+  {
+    id: 'stockhausen', year: 1956, discipline: 'musica', emoji: '📡',
+    title: 'Gesang der Jünglinge', creator: 'Karlheinz Stockhausen',
+    desc: 'Canto de un niño fragmentado, tratado electrónicamente y dispersado en el espacio mediante múltiples altavoces. El primer gran logro de la música electrónica espacializada.',
+    quote: '"La música debe provenir de todas partes."',
+    cite: '— Karlheinz Stockhausen',
+    tags: ['Electroacústica', 'Espacialización', 'Serialismo', 'Cologne'],
+    link: 'https://es.wikipedia.org/wiki/Gesang_der_J%C3%BCnglinge'
+  },
+  {
+    id: 'villalobo', year: 1923, discipline: 'musica', emoji: '🌴',
+    title: 'Choros', creator: 'Heitor Villa-Lobos',
+    desc: 'Serie de piezas que fragmentan y fusionan la música popular brasileña con el modernismo europeo. La síncopa y la superposición como identidad latinoamericana quebrada y recompuesta.',
+    quote: '"La fusión de la selva y la ciudad."',
+    cite: '— Heitor Villa-Lobos',
+    tags: ['Modernismo latinoamericano', 'Folklore', 'Brasil', 'Fusión'],
+    link: 'https://es.wikipedia.org/wiki/Heitor_Villa-Lobos'
+  },
+  {
+    id: 'xenakis', year: 1958, discipline: 'musica', emoji: '📐',
+    title: 'Metastasis / Achorripsis', creator: 'Iannis Xenakis',
+    desc: 'Música estocástica: las masas sonoras se calculan con teoría de probabilidades. El sonido como multitud de partículas fragmentadas, nunca melódico sino estadístico.',
+    quote: '"La música es arquitectura en el tiempo."',
+    cite: '— Iannis Xenakis',
+    tags: ['Estocástico', 'Matemáticas', 'Masa sonora', 'Arquitectura'],
+    link: 'https://es.wikipedia.org/wiki/Iannis_Xenakis'
+  },
+  {
+    id: 'aphex', year: 1994, discipline: 'musica', emoji: '🤖',
+    title: 'Selected Ambient Works Vol. II', creator: 'Aphex Twin',
+    desc: 'Texturas fragmentadas, sin ritmo convencional, sin melodía reconocible. Richard D. James hereda a Schaeffer y Cage y los lleva a la era del sampler digital. El ambient como fragmento infinito.',
+    quote: '"Quiero hacer música que te haga sentir algo que no puedes nombrar."',
+    cite: '— Richard D. James (Aphex Twin)',
+    tags: ['Electrónica', 'Ambient', 'Música concreta', 'IDM'],
+    link: 'https://es.wikipedia.org/wiki/Selected_Ambient_Works_Volume_II'
+  },
+  {
+    id: 'matmos', year: 2001, discipline: 'musica', emoji: '🫀',
+    title: 'A Chance to Cut is a Chance to Cure', creator: 'Matmos',
+    desc: 'Álbum construido íntegramente con sonidos de cirugías: huesos, liposucción, láser ocular. Radicalización del musique concrète: el cuerpo fragmentado como fuente sonora.',
+    quote: '"Todo sonido es válido como material musical."',
+    cite: '— Matmos',
+    tags: ['Música concreta', 'Body music', 'Experimental', 'Postmoderno'],
+    link: 'https://es.wikipedia.org/wiki/Matmos'
+  },
+  {
+    id: 'haswell', year: 2016, discipline: 'musica', emoji: '⚡',
+    title: 'Reproces', creator: 'Russell Haswell & Peter Rehberg',
+    desc: 'Música de error y glitch: el fallo de los sistemas digitales como estética. La fragmentación del dato corrupto, el bit roto como forma de expresión en la era de la sobreproducción.',
+    quote: '"El error es la nota más interesante."',
+    cite: '— Rashad Becker (productor de referencia en el campo)',
+    tags: ['Glitch', 'Error', 'Digital', 'Noise'],
+    link: 'https://es.wikipedia.org/wiki/Glitch_music'
+  },
+
+  // ARTES VISUALES
+  {
+    id: 'picasso', year: 1907, discipline: 'visuales', emoji: '🔷',
+    title: 'Las señoritas de Aviñón', creator: 'Pablo Picasso',
+    desc: 'El cubismo fragmenta el cuerpo en múltiples perspectivas simultáneas. La representación unificada se destruye: el ojo ya no puede ver todo desde un solo punto.',
+    quote: '"El arte es mentira que nos hace ver la verdad."',
+    cite: '— Pablo Picasso',
+    tags: ['Cubismo', 'Braque', 'Simultaneidad', 'Anti-perspectiva'],
+    link: 'https://es.wikipedia.org/wiki/Las_se%C3%B1oritas_de_Avi%C3%B1%C3%B3n'
+  },
+  {
+    id: 'schwitters', year: 1919, discipline: 'visuales', emoji: '🗞️',
+    title: 'Merzbau', creator: 'Kurt Schwitters',
+    desc: 'Construcciones de desechos: billetes de tren, alambre, basura recogida de la calle. El collage como arqueología del fragmento cotidiano; Schwitters anticipa el arte de instalación.',
+    quote: '"Todo lo que el artista escupe es arte."',
+    cite: '— Kurt Schwitters',
+    tags: ['Dadá', 'Collage', 'Assemblage', 'Arte povera'],
+    link: 'https://es.wikipedia.org/wiki/Kurt_Schwitters'
+  },
+  {
+    id: 'duchamp', year: 1917, discipline: 'visuales', emoji: '🚽',
+    title: 'Fountain (Readymade)', creator: 'Marcel Duchamp',
+    desc: 'El objeto de uso cotidiano como obra de arte: el readymade fragmenta la distinción entre arte y vida. El gesto conceptual es la obra; el objeto es solo un soporte.',
+    quote: '"El artista del futuro se limitará a señalar."',
+    cite: '— Marcel Duchamp',
+    tags: ['Readymade', 'Arte conceptual', 'Fluxus', 'Postmodernismo'],
+    link: 'https://es.wikipedia.org/wiki/Fountain_(Duchamp)'
+  },
+  {
+    id: 'lam', year: 1943, discipline: 'visuales', emoji: '🌿',
+    title: 'La jungla', creator: 'Wifredo Lam',
+    desc: 'El cubismo en el Caribe: cuerpos fragmentados que fusionan las figuras afrocubanas con el lenguaje plástico de Picasso. La fragmentación como espacio de resistencia colonial.',
+    quote: '"Quería que mi pintura actuara como un hecho perturbador."',
+    cite: '— Wifredo Lam',
+    tags: ['Cubismo latinoamericano', 'Santería', 'Cuba', 'Picasso'],
+    link: 'https://es.wikipedia.org/wiki/Wifredo_Lam'
+  },
+  {
+    id: 'fluxus', year: 1960, discipline: 'visuales', emoji: '🎭',
+    title: 'Eventos Fluxus', creator: 'George Maciunas & Yoko Ono',
+    desc: 'Performances basadas en instrucciones fragmentadas: "Destroza esta pintura", "Entra en un cuarto y respira". El arte como acción discontinua, el objeto artístico disuelto en el tiempo.',
+    quote: '"El arte es lo que el artista llama arte."',
+    cite: '— George Maciunas',
+    tags: ['Performance', 'Arte conceptual', 'Cage', 'Instrucción'],
+    link: 'https://es.wikipedia.org/wiki/Fluxus'
+  },
+  {
+    id: 'boetti', year: 1971, discipline: 'visuales', emoji: '🗺️',
+    title: 'Mappa', creator: 'Alighiero Boetti',
+    desc: 'Mapas del mundo bordados por artesanas afganas siguiendo instrucciones enviadas por correo. El arte fragmentado en el espacio (Italia/Afganistán), el tiempo (años de bordado), los autores (múltiples manos).',
+    quote: '"Hacer y dejar hacer."',
+    cite: '— Alighiero Boetti',
+    tags: ['Arte conceptual', 'Arte povera', 'Colaboración', 'Proceso'],
+    link: 'https://es.wikipedia.org/wiki/Alighiero_Boetti'
+  },
+  {
+    id: 'sierra', year: 2000, discipline: 'visuales', emoji: '🧱',
+    title: 'Workers who cannot be paid', creator: 'Santiago Sierra',
+    desc: 'Arte político latinoamericano: personas reales contratadas para realizar acciones sin sentido o dolorosas. La fragmentación del sujeto social como material artístico bruto.',
+    quote: '"Pago el salario mínimo para evidenciar su existencia."',
+    cite: '— Santiago Sierra',
+    tags: ['Arte político', 'México', 'Trabajo', 'Cuerpo'],
+    link: 'https://es.wikipedia.org/wiki/Santiago_Sierra_(artista)'
+  },
+  {
+    id: 'glitch', year: 2010, discipline: 'visuales', emoji: '📺',
+    title: 'Estética Glitch / Post-internet', creator: 'Rosa Menkman & Artistas digitales',
+    desc: 'El error digital como belleza: píxeles corruptos, compresión JPEG llevada al extremo. El glitch art convierte el fallo del sistema en forma estética y crítica política de la perfección tecnológica.',
+    quote: '"El glitch es el momento en que el sistema muestra lo que es."',
+    cite: '— Rosa Menkman, The Glitch Moment(um), 2011',
+    tags: ['Arte digital', 'Error', 'Post-internet', 'Corrupción de datos'],
+    link: 'https://es.wikipedia.org/wiki/Arte_glitch'
+  },
+];
+
+// ─── TIMELINE CONFIG ────────────────────────────────────────────────────────
+const START_YEAR = 1895;
+const END_YEAR = 2024;
+const PX_PER_YEAR = 80;
+const TRACK_LEFT = 120;
+
+const ERAS = [
+  { label: 'Vanguardias', start: 1895, end: 1940 },
+  { label: 'Neovanguardias', start: 1940, end: 1968 },
+  { label: 'Boom & Nuevos cines', start: 1968, end: 1985 },
+  { label: 'Posmodernismo', start: 1985, end: 2000 },
+  { label: 'Digital & Experimental', start: 2000, end: 2024 },
+];
+
+const DISCIPLINES = ['literatura', 'cine', 'musica', 'visuales'];
+const DISC_LABELS = { literatura: 'Literatura', cine: 'Cine', musica: 'Música', visuales: 'Artes Visuales' };
+
+const DISC_COLORS = {
+  literatura: 'var(--lit)',
+  cine: 'var(--cin)',
+  musica: 'var(--mus)',
+  visuales: 'var(--vis)',
+};
+
+// ─── THEME ───────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  buildTimeline(); // rebuild to pick up new CSS variable values
+}
+
+// Apply saved or system preference on load — must run before buildTimeline
+(function() {
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'light' || (!saved && !prefersDark)) {
+    document.documentElement.classList.add('light');
+  }
+})();
+
+// ─── ZOOM ───────────────────────────────────────────────────────────────────
+let zoomLevel = 1;
+const ZOOM_STEPS = [0.6, 0.8, 1, 1.3, 1.6, 2];
+let zoomIndex = 2;
+
+function changeZoom(dir) {
+  zoomIndex = Math.max(0, Math.min(ZOOM_STEPS.length - 1, zoomIndex + dir));
+  zoomLevel = ZOOM_STEPS[zoomIndex];
+  document.getElementById('zoomLabel').textContent = Math.round(zoomLevel * 100) + '%';
+  buildTimeline();
+}
+
+// ─── BUILD ───────────────────────────────────────────────────────────────────
+function yearToX(year) {
+  return TRACK_LEFT + (year - START_YEAR) * PX_PER_YEAR * zoomLevel;
+}
+
+function getVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function buildTimeline() {
+  const inner = document.getElementById('timelineInner');
+  const totalWidth = TRACK_LEFT + (END_YEAR - START_YEAR) * PX_PER_YEAR * zoomLevel + 80;
+  inner.style.width = totalWidth + 'px';
+  inner.innerHTML = '';
+
+  // Era background bands
+  const eraBg = document.createElement('div');
+  eraBg.style.cssText = `position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;`;
+  ERAS.forEach((era, i) => {
+    const x = yearToX(era.start);
+    const w = yearToX(era.end) - x;
+    const band = document.createElement('div');
+    band.style.cssText = `
+      position:absolute;
+      left:${x}px;
+      width:${w}px;
+      top:0; height:100%;
+      background:${i % 2 === 0 ? 'rgba(128,128,128,0.04)' : 'transparent'};
+      border-right:1px solid var(--era-band-border, #252525);
+    `;
+    const lbl = document.createElement('div');
+    lbl.textContent = era.label;
+    lbl.style.cssText = `
+      font-family:var(--font-mono);
+      font-size:9px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:var(--era-label-color, #444);
+      position:absolute;
+      top:8px;left:12px;
+      white-space:nowrap;
+    `;
+    band.appendChild(lbl);
+    eraBg.appendChild(band);
+  });
+  inner.appendChild(eraBg);
+
+  // Time axis
+  const axis = document.createElement('div');
+  axis.style.cssText = `
+    position:relative;
+    height:50px;
+    margin-bottom:32px;
+    margin-left:0;
+    border-bottom:1px solid var(--axis-border, #333);
+  `;
+
+  for (let y = Math.ceil(START_YEAR / 10) * 10; y <= END_YEAR; y += 10) {
+    const tick = document.createElement('div');
+    tick.style.cssText = `
+      position:absolute;
+      left:${yearToX(y)}px;
+      bottom:0;
+      transform:translateX(-50%);
+      text-align:center;
+    `;
+    tick.innerHTML = `
+      <div style="width:1px;height:8px;background:var(--tick-line, #444);margin:0 auto;"></div>
+      <div style="font-family:var(--font-mono);font-size:9px;color:var(--tick-label, #666);margin-top:4px;white-space:nowrap;">${y}</div>
+    `;
+    axis.appendChild(tick);
+  }
+  inner.appendChild(axis);
+
+  // Tracks
+  const tracks = document.createElement('div');
+  tracks.style.cssText = `display:flex;flex-direction:column;gap:32px;position:relative;z-index:1;`;
+
+  DISCIPLINES.forEach(disc => {
+    const track = document.createElement('div');
+    track.dataset.discipline = disc;
+    track.className = 'track';
+    track.style.cssText = `
+      display:flex;
+      align-items:center;
+      height:64px;
+      position:relative;
+    `;
+
+    // Label
+    const label = document.createElement('div');
+    label.className = 'track-label';
+    label.innerHTML = `<div class="track-dot"></div>${DISC_LABELS[disc]}`;
+    track.appendChild(label);
+
+    // Line
+    const line = document.createElement('div');
+    line.className = 'track-line';
+    track.appendChild(line);
+
+    // Nodes
+    const discEvents = events.filter(e => e.discipline === disc);
+    discEvents.forEach(ev => {
+      const node = document.createElement('div');
+      node.className = 'node';
+      node.style.left = yearToX(ev.year) + 'px';
+      node.innerHTML = `
+        <div class="node-dot">${ev.emoji}</div>
+        <div class="node-year">${ev.year}</div>
+      `;
+      node.addEventListener('click', () => openModal(ev));
+      track.appendChild(node);
+    });
+
+    tracks.appendChild(track);
+  });
+
+  inner.appendChild(tracks);
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+const DISC_VAR = {
+  literatura: '--lit',
+  cine: '--cin',
+  musica: '--mus',
+  visuales: '--vis',
+};
+
+const DISC_ON_VAR = {
+  literatura: '--on-lit',
+  cine: '--on-cin',
+  musica: '--on-mus',
+  visuales: '--on-vis',
+};
+
+function openModal(ev) {
+  const color = getVar(DISC_VAR[ev.discipline]);
+  const onColor = getVar(DISC_ON_VAR[ev.discipline]);
+
+  document.getElementById('modalBar').style.background = color;
+
+  // Tag: colored border + colored text (readable on surface background)
+  const tagEl = document.getElementById('modalTag');
+  tagEl.textContent = ev.year;
+  tagEl.style.borderColor = color;
+  tagEl.style.color = color;
+  tagEl.style.background = 'transparent';
+
+  document.getElementById('modalDiscipline').textContent = DISC_LABELS[ev.discipline];
+  document.getElementById('modalTitle').textContent = ev.title;
+  document.getElementById('modalCreator').textContent = ev.creator;
+  document.getElementById('modalDesc').textContent = ev.desc;
+  document.getElementById('modalQuote').textContent = ev.quote;
+  document.getElementById('modalCite').textContent = ev.cite;
+  document.getElementById('modalQuoteBlock').style.borderColor = color;
+
+  const tagsEl = document.getElementById('modalTags');
+  tagsEl.innerHTML = ev.tags.map(t => `<span class="connection-tag">${t}</span>`).join('');
+
+  const linkEl = document.getElementById('modalLink');
+  linkEl.href = ev.link;
+  linkEl.textContent = 'Explorar en Wikipedia →';
+  linkEl.style.borderColor = color;
+  linkEl.style.color = color;
+  linkEl.style.background = 'transparent';
+  linkEl.onmouseenter = () => {
+    const isDark = !document.documentElement.classList.contains('light');
+    linkEl.style.background = getVar(DISC_VAR[ev.discipline]);
+    linkEl.style.color = isDark ? '#000' : '#fff';
+  };
+  linkEl.onmouseleave = () => {
+    linkEl.style.background = 'transparent';
+    linkEl.style.color = getVar(DISC_VAR[ev.discipline]);
+  };
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+function filterDiscipline(disc, btn) {
+  document.querySelectorAll('.header-nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.track').forEach(track => {
+    if (disc === 'all' || track.dataset.discipline === disc) {
+      track.classList.remove('hidden');
+    } else {
+      track.classList.add('hidden');
+    }
+  });
+}
+
+// ─── CURSOR ──────────────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+(function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+// ─── SMOOTH SCROLL ────────────────────────────────────────────────────────────
+document.querySelector('.hero-cta').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('timeline').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+buildTimeline();
+
+// Scroll hint animation
+setTimeout(() => {
+  const tw = document.getElementById('timelineWrapper');
+  tw.scrollTo({ left: 200, behavior: 'smooth' });
+  setTimeout(() => tw.scrollTo({ left: 0, behavior: 'smooth' }), 800);
+}, 2000);
+</script>
+</body>
+</html>
