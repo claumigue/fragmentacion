@@ -1,5 +1,14 @@
 ---
-// No props, no slots — static connections section.
+import { connections } from '../data/connections';
+
+// Maps discipline key to its CSS variable
+const colorVar: Record<string, string> = {
+	accent:     'var(--accent)',
+	literatura: 'var(--lit)',
+	cine:       'var(--cin)',
+	musica:     'var(--mus)',
+	visuales:   'var(--vis)',
+};
 ---
 
 <section class="connections-section">
@@ -7,55 +16,12 @@
 	<h2 class="section-title">Conexiones entre tradiciones</h2>
 
 	<div class="connections-grid">
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--accent)">→</span>
-			<div class="connection-title">Cubismo → Collage literario</div>
-			<p class="connection-desc">
-				La fragmentación espacial de Picasso inspira la escritura en montaje
-				de Dos Passos y Apollinaire.
-			</p>
-		</div>
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--cin)">→</span>
-			<div class="connection-title">Eisenstein → Godard → Cortázar</div>
-			<p class="connection-desc">
-				El montaje soviético deriva en la nouvelle vague y la narrativa en
-				capítulos intercambiables de <em>Rayuela</em>.
-			</p>
-		</div>
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--mus)">→</span>
-			<div class="connection-title">Schönberg → Cage → Música concreta</div>
-			<p class="connection-desc">
-				La atonalidad destruye la jerarquía tonal; Cage introduce el
-				silencio; Pierre Schaeffer fragmenta el sonido grabado.
-			</p>
-		</div>
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--vis)">→</span>
-			<div class="connection-title">Dadá → Arte conceptual → Net Art</div>
-			<p class="connection-desc">
-				El anti-arte de Tzara deviene performance conceptual y luego glitch
-				art digital en la era de internet.
-			</p>
-		</div>
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--lit)">→</span>
-			<div class="connection-title">Borges → McOndo → Hipertexto</div>
-			<p class="connection-desc">
-				Los laberintos borgianos anticipan la narrativa hipertextual y la
-				no-linealidad de la literatura digital latinoamericana.
-			</p>
-		</div>
-		<div class="connection-card">
-			<span class="connection-arrow" style="color:var(--mus)">→</span>
-			<div class="connection-title">
-				Musique acousmatique → Sampling → Plunderphonics
+		{connections.map((conn) => (
+			<div class="connection-card">
+				<span class="connection-arrow" style={`color:${colorVar[conn.discipline]}`}>→</span>
+				<div class="connection-title">{conn.title}</div>
+				<p class="connection-desc">{conn.desc}</p>
 			</div>
-			<p class="connection-desc">
-				De la electroacústica europea al hip-hop y Matmos: el fragmento
-				sonoro como cita y apropiación radical.
-			</p>
-		</div>
+		))}
 	</div>
 </section>
