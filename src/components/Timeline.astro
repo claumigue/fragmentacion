@@ -1,0 +1,80 @@
+---
+// Imports data at build time — no props needed from parent.
+// Era bands and time axis are injected at runtime by timeline.ts (zoom-dependent).
+import { events } from '../data/events';
+
+const disciplines = [
+	{ key: 'literatura', label: 'Literatura' },
+	{ key: 'cine',       label: 'Cine'       },
+	{ key: 'musica',     label: 'Música'     },
+	{ key: 'visuales',   label: 'Artes Visuales' },
+] as const;
+---
+
+<section class="timeline-section" id="timeline">
+	<div class="section-header">
+		<div>
+			<div class="section-label">Cronología</div>
+			<h2 class="section-title">Hitos de la Ruptura</h2>
+		</div>
+		<div class="zoom-controls">
+			<button class="zoom-btn" data-zoom="-1">−</button>
+			<div class="zoom-label" id="zoomLabel">100%</div>
+			<button class="zoom-btn" data-zoom="1">+</button>
+		</div>
+	</div>
+
+	<div class="legend">
+		<div class="legend-item">
+			<div class="legend-dot" style="background:var(--lit)"></div>Literatura
+		</div>
+		<div class="legend-item">
+			<div class="legend-dot" style="background:var(--cin)"></div>Cine
+		</div>
+		<div class="legend-item">
+			<div class="legend-dot" style="background:var(--mus)"></div>Música
+		</div>
+		<div class="legend-item">
+			<div class="legend-dot" style="background:var(--vis)"></div>Artes Visuales
+		</div>
+	</div>
+
+	<div class="timeline-wrapper" id="timelineWrapper">
+		<div class="timeline-inner" id="timelineInner">
+			<!-- Era bands & axis injected here by timeline.ts (zoom-dependent) -->
+
+			<!-- Tracks & nodes: server-rendered from events.ts -->
+			<div class="tracks" id="tracks">
+				{disciplines.map(({ key, label }) => (
+					<div class="track" data-discipline={key}>
+						<div class="track-label">
+							<div class="track-dot"></div>{label}
+						</div>
+						<div class="track-line"></div>
+						{events
+							.filter((ev) => ev.discipline === key)
+							.map((ev) => (
+								<div
+									class="node"
+									data-id={ev.id}
+									data-year={ev.year}
+									data-discipline={ev.discipline}
+									data-emoji={ev.emoji}
+									data-title={ev.title}
+									data-creator={ev.creator}
+									data-desc={ev.desc}
+									data-quote={ev.quote}
+									data-cite={ev.cite}
+									data-tags={JSON.stringify(ev.tags)}
+									data-link={ev.link}
+								>
+									<div class="node-dot">{ev.emoji}</div>
+									<div class="node-year">{ev.year}</div>
+								</div>
+							))}
+					</div>
+				))}
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,29 @@
+---
+// No props, no slots — pure static HTML shell.
+// All content is injected at runtime by modal.ts via #id selectors.
+---
+
+<div class="modal-overlay" id="modalOverlay">
+	<div class="modal" id="modal">
+		<div class="modal-accent-bar" id="modalBar"></div>
+		<button class="modal-close">✕</button>
+		<div class="modal-body">
+			<div class="modal-meta">
+				<span class="modal-tag" id="modalTag"></span>
+				<span class="modal-discipline" id="modalDiscipline"></span>
+			</div>
+			<h2 class="modal-title" id="modalTitle"></h2>
+			<div class="modal-creator" id="modalCreator"></div>
+			<p class="modal-description" id="modalDesc"></p>
+			<div class="modal-quote" id="modalQuoteBlock">
+				<p id="modalQuote"></p>
+				<cite id="modalCite"></cite>
+			</div>
+			<div class="modal-connections">
+				<h4>Conexiones y resonancias</h4>
+				<div class="connection-tags" id="modalTags"></div>
+			</div>
+			<a class="modal-link" id="modalLink" target="_blank" rel="noopener"></a>
+		</div>
+	</div>
+</div>

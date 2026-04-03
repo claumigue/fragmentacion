@@ -1,0 +1,21 @@
+---
+// No props, no slots — static header.
+// Theme toggle button wired at runtime by theme.ts (#themeToggleBtn).
+// Filter buttons wired at runtime by filter.ts ([data-filter]).
+---
+
+<header>
+	<div class="logo">Poética <span>/</span> Fragmentación</div>
+	<nav class="header-nav">
+		<button data-filter="all" class="active">Todo</button>
+		<button data-filter="literatura">Literatura</button>
+		<button data-filter="cine">Cine</button>
+		<button data-filter="musica">Música</button>
+		<button data-filter="visuales">Artes Visuales</button>
+		<div class="theme-toggle">
+			<span class="theme-icon moon">🌙</span>
+			<button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Cambiar tema"></button>
+			<span class="theme-icon sun">☀️</span>
+		</div>
+	</nav>
+</header>
