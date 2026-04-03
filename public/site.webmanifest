@@ -1,0 +1,23 @@
+{
+  "name": "Poética de la Fragmentación",
+  "short_name": "Fragment",
+  "start_url": "/fragmentacion/",
+  "scope": "/fragmentacion/",
+  "display": "standalone",
+  "theme_color": "#ff2d55",
+  "background_color": "#ff2d55",
+  "icons": [
+    {
+      "src": "/fragmentacion/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/fragmentacion/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
