@@ -1,54 +1,18 @@
 ---
-import "../styles/main.css";
-import Header from "../components/Header.astro";
-import Hero from "../components/Hero.astro";
-import Timeline from "../components/Timeline.astro";
-import Connections from "../components/Connections.astro";
-import Footer from "../components/Footer.astro";
-import Modal from "../components/Modal.astro";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Timeline from '../components/Timeline.astro';
+import Connections from '../components/Connections.astro';
+import Footer from '../components/Footer.astro';
+import Modal from '../components/Modal.astro';
 ---
 
-<!doctype html>
-<html lang="es">
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Poética de la Fragmentación</title>
-	<meta name="description" content="Diagrama cronológico de la fragmentación en literatura, cine, música y artes visuales. De las vanguardias europeas al posmodernismo latinoamericano." />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap"
-		rel="stylesheet"
-	/>
-	<link rel="icon" type="image/png" href={`${import.meta.env.BASE_URL}favicon-96x96.png?v=20260403`} sizes="96x96" />
-	<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg?v=20260403`} />
-	<link rel="shortcut icon" href={`${import.meta.env.BASE_URL}favicon.ico?v=20260403`} />
-	<link rel="apple-touch-icon" sizes="180x180" href={`${import.meta.env.BASE_URL}apple-touch-icon.png?v=20260403`} />
-	<meta name="apple-mobile-web-app-title" content="Fragment" />
-	<link rel="manifest" href={`${import.meta.env.BASE_URL}site.webmanifest?v=20260403`} />
-	<script is:inline src="/fragmentacion/registerSW.js"></script>
-	<!-- Anti-FOUC: apply saved theme before first paint -->
-	<script is:inline>
-		(function () {
-			const saved = localStorage.getItem('theme');
-			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-			if (saved === 'light' || (!saved && !prefersDark)) {
-				document.documentElement.classList.add('light');
-			}
-		})();
-	</script>
-</head>
-<body>
-	<div class="cursor" id="cursor"></div>
-	<div class="cursor-ring" id="cursorRing"></div>
-
+<BaseLayout>
 	<Header />
 	<Hero />
 	<Timeline />
 	<Connections />
 	<Footer />
 	<Modal />
-
-	<script src="../scripts/main.ts"></script>
-</body>
-</html>
+</BaseLayout>
