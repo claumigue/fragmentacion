@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff4d6d"></stop>
-            <stop offset="100%" stop-color="#ff7a00"></stop>
-        </linearGradient>
-    </defs><path fill="url(#grad)" d="
+    <!-- Gradiente más contrastado -->
+    <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff2d55"></stop>
+      <stop offset="55%" stop-color="#ff6a00"></stop>
+      <stop offset="100%" stop-color="#ff8c00"></stop>
+    </linearGradient>
+  </defs><path fill="url(#grad)" d="
     M0 0 H16 V16 H0 Z
     M0 16 H16 V32 H0 Z
     M0 32 H16 V48 H0 Z
