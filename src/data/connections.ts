@@ -1,10 +1,4 @@
-export type Discipline = 'literatura' | 'cine' | 'musica' | 'visuales' | 'accent'
-
-export interface Connection {
-	discipline: Discipline
-	title: string
-	desc: string
-}
+import type { Discipline, Connection } from '../types';
 
 export const connections: Connection[] = [
 	{

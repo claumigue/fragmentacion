@@ -1,16 +1,4 @@
-export interface TimelineEvent {
-    id: string
-    year: number
-    discipline: 'literatura' | 'cine' | 'musica' | 'visuales'
-    emoji: string
-    title: string
-    creator: string
-    desc: string
-    quote: string
-    cite: string
-    tags: string[]
-    link: string
-}
+import type { TimelineEvent } from '../types';
 
 export const events: TimelineEvent[] = [
     // ── LITERATURA ────────────────────────────────────────────────────────────
