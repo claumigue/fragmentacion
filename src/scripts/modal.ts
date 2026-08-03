@@ -20,7 +20,18 @@ function getVar(name: string): string {
 	return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
+let activeNode: HTMLElement | null = null;
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+	return Array.from(container.querySelectorAll<HTMLElement>(
+		'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+	));
+}
+
 function openModal(node: HTMLElement): void {
+	const overlay = document.getElementById('modalOverlay')!;
+	const modal = document.getElementById('modal')!;
+	const closeBtn = document.querySelector<HTMLButtonElement>('.modal-close')!;
 	const discipline = node.dataset.discipline!;
 	const year = node.dataset.year!;
 	const title = node.dataset.title!;
@@ -68,19 +79,27 @@ function openModal(node: HTMLElement): void {
 		linkEl.style.color = getVar(DISC_VAR[discipline]);
 	};
 
-	document.getElementById('modalOverlay')!.classList.add('active');
+	activeNode = node;
+	overlay.classList.add('active');
+	overlay.setAttribute('aria-hidden', 'false');
 	document.body.style.overflow = 'hidden';
+	closeBtn.focus();
 }
 
 function closeModal(overlay: HTMLElement): void {
+	if (!overlay.classList.contains('active')) return;
 	overlay.classList.remove('active');
+	overlay.setAttribute('aria-hidden', 'true');
 	document.body.style.overflow = '';
+	activeNode?.focus();
+	activeNode = null;
 }
 
 export function initModal(): void {
 	const overlay = document.getElementById('modalOverlay');
+	const modal = document.getElementById('modal');
 	const closeBtn = document.querySelector('.modal-close');
-	if (!overlay) return;
+	if (!overlay || !modal) return;
 
 	// Close handlers
 	overlay.addEventListener('click', e => {
@@ -88,11 +107,41 @@ export function initModal(): void {
 	});
 	closeBtn?.addEventListener('click', () => closeModal(overlay));
 	document.addEventListener('keydown', e => {
-		if (e.key === 'Escape') closeModal(overlay);
+		if (!overlay.classList.contains('active')) return;
+
+		if (e.key === 'Escape') {
+			closeModal(overlay);
+			return;
+		}
+
+		if (e.key !== 'Tab') return;
+		const focusable = getFocusableElements(modal);
+		if (focusable.length === 0) {
+			e.preventDefault();
+			modal.focus();
+			return;
+		}
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		const focusIsOutside = !modal.contains(document.activeElement);
+		if (e.shiftKey && (focusIsOutside || document.activeElement === first)) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && (focusIsOutside || document.activeElement === last)) {
+			e.preventDefault();
+			first.focus();
+		}
 	});
 
 	// Bind node clicks
 	document.querySelectorAll<HTMLElement>('.node').forEach(node => {
 		node.addEventListener('click', () => openModal(node));
+		node.addEventListener('keydown', e => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				openModal(node);
+			}
+		});
 	});
 }

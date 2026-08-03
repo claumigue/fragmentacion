@@ -56,6 +56,9 @@ const disciplines = [
 							.map((ev) => (
 								<div
 									class="node"
+									role="button"
+									tabindex="0"
+									aria-label={`${ev.title}, ${ev.creator}, ${ev.year}`}
 									data-id={ev.id}
 									data-year={ev.year}
 									data-discipline={ev.discipline}

@@ -888,6 +888,11 @@ header {
 	transform: scale(1.3);
 }
 
+.node:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 8px;
+}
+
 .node:hover .node-dot::before {
 	opacity: 1;
 }
@@ -1178,6 +1183,12 @@ header {
 	background: var(--accent);
 	border-color: var(--accent);
 	color: #000;
+}
+
+.modal-close:focus-visible,
+.modal-link:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 4px;
 }
 
 /* ─── CONNECTIONS SECTION ─── */
