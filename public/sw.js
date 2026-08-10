@@ -6,6 +6,12 @@ const ASSET_CACHE = `${CACHE_PREFIX}assets-${CACHE_VERSION}`;
 const scopeUrl = new URL(self.registration.scope);
 const shellUrl = scopeUrl.href;
 const assetPath = new URL('_astro/', scopeUrl).pathname;
+const fontPath = new URL('fonts/', scopeUrl).pathname;
+const fontUrls = [
+	new URL('fonts/syne-latin.woff2', scopeUrl).href,
+	new URL('fonts/dm-mono-latin.woff2', scopeUrl).href,
+	new URL('fonts/cormorant-garamond-italic-latin.woff2', scopeUrl).href,
+];
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -48,7 +54,7 @@ self.addEventListener('fetch', (event) => {
 	if (
 		request.method === 'GET' &&
 		url.origin === self.location.origin &&
-		url.pathname.startsWith(assetPath)
+		(url.pathname.startsWith(assetPath) || url.pathname.startsWith(fontPath))
 	) {
 		event.respondWith(cacheFirstAsset(request));
 	}
@@ -95,7 +101,7 @@ async function cacheShellAndAssets(response) {
 	await shellCache.put(shellUrl, new Response(html, { headers }));
 
 	const assetUrls = extractAstroAssets(html);
-	await Promise.all(assetUrls.map(cacheAsset));
+	await Promise.all([...assetUrls, ...fontUrls].map(cacheAsset));
 }
 
 function extractAstroAssets(html) {
