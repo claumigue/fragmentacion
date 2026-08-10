@@ -1,1 +1,132 @@
-if(!self.define){let e,i={};const n=(n,r)=>(n=new URL(n+".js",r).href,i[n]||new Promise(i=>{if("document"in self){const e=document.createElement("script");e.src=n,e.onload=i,document.head.appendChild(e)}else e=n,importScripts(n),i()}).then(()=>{let e=i[n];if(!e)throw new Error(`Module ${n} didn’t register its module`);return e}));self.define=(r,c)=>{const o=e||("document"in self?document.currentScript.src:"")||location.href;if(i[o])return;let s={};const f=e=>n(e,o),t={module:{uri:o},exports:s,require:f};i[o]=Promise.all(r.map(e=>t[e]||f(e))).then(e=>(c(...e),s))}}define(["./workbox-9c191d2f"],function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"web-app-manifest-512x512.png",revision:"563c0ef4dd067ebfd92ab0f6dff0d9a0"},{url:"web-app-manifest-192x192.png",revision:"f4c5921e6bc52cfb66aea1137d10f41d"},{url:"site.webmanifest",revision:"9aeac97ca1b0b9f072184f2d23b42444"},{url:"registerSW.js",revision:"663939b2448cfafac4c3132296050b3c"},{url:"/fragmentacion/",revision:"c19a58fbcb450e7ec0b00af0ef8116be"},{url:"favicon.svg",revision:"d6b394c62f1aafe10606630ab67cfca9"},{url:"favicon.ico",revision:"a407874dc6127dcc4455a99052cb324f"},{url:"favicon-96x96.png",revision:"da77f77ccc50a62cf95f38cb19091dfc"},{url:"apple-touch-icon.png",revision:"9b715540deba8f9c66a785cf1062bdf1"},{url:"_astro/index.P5k9uM7q.css",revision:null},{url:"_astro/BaseLayout.astro_astro_type_script_index_0_lang.C9FTbCeB.js",revision:null}],{directoryIndex:"index.html"}),e.cleanupOutdatedCaches(),e.registerRoute(new e.NavigationRoute(e.createHandlerBoundToURL("/fragmentacion/")))});
+const CACHE_VERSION = 'v1';
+const CACHE_PREFIX = 'fragmentacion-';
+const SHELL_CACHE = `${CACHE_PREFIX}shell-${CACHE_VERSION}`;
+const ASSET_CACHE = `${CACHE_PREFIX}assets-${CACHE_VERSION}`;
+
+const scopeUrl = new URL(self.registration.scope);
+const shellUrl = scopeUrl.href;
+const assetPath = new URL('_astro/', scopeUrl).pathname;
+const fontPath = new URL('fonts/', scopeUrl).pathname;
+const fontUrls = [
+	new URL('fonts/syne-latin.woff2', scopeUrl).href,
+	new URL('fonts/dm-mono-latin.woff2', scopeUrl).href,
+	new URL('fonts/cormorant-garamond-italic-latin.woff2', scopeUrl).href,
+];
+
+self.addEventListener('install', (event) => {
+	event.waitUntil(
+		(async () => {
+			const response = await fetch(new Request(shellUrl, { cache: 'reload' }));
+			if (!response.ok) throw new Error(`Unable to cache app shell: ${response.status}`);
+
+			await cacheShellAndAssets(response);
+			await self.skipWaiting();
+		})(),
+	);
+});
+
+self.addEventListener('activate', (event) => {
+	event.waitUntil(
+		(async () => {
+			const activeCaches = new Set([SHELL_CACHE, ASSET_CACHE]);
+			const cacheNames = await caches.keys();
+
+			await Promise.all(
+				cacheNames
+					.filter((name) => name.startsWith(CACHE_PREFIX) && !activeCaches.has(name))
+					.map((name) => caches.delete(name)),
+			);
+
+			await self.clients.claim();
+		})(),
+	);
+});
+
+self.addEventListener('fetch', (event) => {
+	const { request } = event;
+	const url = new URL(request.url);
+
+	if (request.mode === 'navigate') {
+		event.respondWith(networkFirstNavigation(event));
+		return;
+	}
+
+	if (
+		request.method === 'GET' &&
+		url.origin === self.location.origin &&
+		(url.pathname.startsWith(assetPath) || url.pathname.startsWith(fontPath))
+	) {
+		event.respondWith(cacheFirstAsset(request));
+	}
+});
+
+async function networkFirstNavigation(event) {
+	try {
+		const response = await fetch(new Request(event.request, { cache: 'no-store' }));
+
+		if (response.ok) {
+			event.waitUntil(cacheShellAndAssets(response.clone()));
+		}
+
+		return response;
+	} catch {
+		return (
+			(await caches.match(event.request)) ||
+			(await caches.match(shellUrl)) ||
+			new Response('The site is unavailable offline.', {
+				status: 503,
+				headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+			})
+		);
+	}
+}
+
+async function cacheFirstAsset(request) {
+	const cache = await caches.open(ASSET_CACHE);
+	const cached = await cache.match(request);
+	if (cached) return cached;
+
+	const response = await fetch(request);
+	if (response.ok) await cache.put(request, response.clone());
+	return response;
+}
+
+async function cacheShellAndAssets(response) {
+	const html = await response.text();
+	const shellCache = await caches.open(SHELL_CACHE);
+	const headers = new Headers({
+		'Content-Type': response.headers.get('Content-Type') || 'text/html; charset=utf-8',
+	});
+
+	await shellCache.put(shellUrl, new Response(html, { headers }));
+
+	const assetUrls = extractAstroAssets(html);
+	await Promise.all([...assetUrls, ...fontUrls].map(cacheAsset));
+}
+
+function extractAstroAssets(html) {
+	const assetUrls = new Set();
+	const urlPattern = /(?:src|href)=["']([^"']+)["']/g;
+
+	for (const match of html.matchAll(urlPattern)) {
+		const url = new URL(match[1], shellUrl);
+		if (url.origin === self.location.origin && url.pathname.startsWith(assetPath)) {
+			assetUrls.add(url.href);
+		}
+	}
+
+	return [...assetUrls];
+}
+
+async function cacheAsset(url) {
+	const cache = await caches.open(ASSET_CACHE);
+	const cached = await cache.match(url);
+	if (cached) return;
+
+	try {
+		const response = await fetch(new Request(url, { cache: 'reload' }));
+		if (response.ok) await cache.put(url, response);
+	} catch {
+		// The shell remains available; the asset can be retried on the next request.
+	}
+}
