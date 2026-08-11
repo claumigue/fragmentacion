@@ -14,12 +14,12 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 
 | Capa          | Tecnología                                                                 |
 | :------------ | :------------------------------------------------------------------------- |
-| Framework     | **[Astro v6](https://astro.build)** (generador de sitios estáticos)        |
+| Framework     | **[Astro v7](https://astro.build)** (generador de sitios estáticos)        |
 | Lenguaje      | **TypeScript** (scripts cliente) + **CSS** vainilla (sin frameworks UI)    |
 | Bundler       | **Vite** (bajo el capó de Astro)                                           |
-| PWA           | `@vite-pwa/astro` + `vite-plugin-pwa` (Workbox) — soporte offline básico   |
+| PWA           | Service worker nativo — sin dependencias PWA externas                      |
 | Despliegue    | `gh-pages` → **GitHub Pages**                                              |
-| Tipografía    | Google Fonts: Syne, DM Mono, Cormorant Garamond                            |
+| Tipografía    | Fuentes autoalojadas: Syne, DM Mono, Cormorant Garamond                    |
 | Node          | `>=22.12.0`, npm                                                           |
 
 ---
@@ -27,6 +27,7 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 ## ✦ Características
 
 ### 🎯 Línea de tiempo interactiva
+
 - Eje cronológico horizontal con **zoom ajustable** (60%–200%)
 - **4 carriles** temáticos: Literatura, Cine, Música y Artes Visuales
 - **35+ hitos** con nodos animados, emojis y colores por disciplina
@@ -34,11 +35,13 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 - Desplazamiento suave horizontal con scrollbar personalizada
 
 ### 🔍 Filtro por disciplina
+
 - Botones en el header para filtrar eventos por disciplina
 - Transiciones suaves con opacidad
 - Distinción cromática: cada disciplina tiene su color (`--lit`, `--cin`, `--mus`, `--vis`)
 
 ### 🖼️ Modal de detalle
+
 - Al hacer clic en cualquier nodo se abre un modal con:
   - Título, creador/a, año y disciplina
   - Descripción y cita textual
@@ -48,23 +51,27 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 - Cierre con clic fuera, botón × o tecla Escape
 
 ### 🔗 Conexiones interdisciplinarias
+
 - Sección inferior que traza **genealogías de ideas** entre disciplinas
 - Tarjetas con flecha direccional codificada por color
 - Ejemplos: Cubismo → Collage literario, Dadá → Glitch art
 
 ### 🌗 Modo oscuro / claro
+
 - Toggle en el header con animación de deslizamiento
 - Persistencia en `localStorage`
 - Script inline **anti-FOUC** que aplica el tema antes del primer pintado
 - 40+ variables CSS que se intercambian al cambiar de tema
 
 ### 🖱️ Cursor personalizado
+
 - Punto de acento que sigue al ratón en tiempo real
 - Anillo secundario con interpolación suave (`requestAnimationFrame`)
 - Efecto `mix-blend-mode: exclusion`
 - Se agranda al pasar sobre nodos interactivos
 
 ### 🎨 Animaciones y micro-interacciones
+
 - Entrada escalonada de letras del título (`FRAG·MENTACIÓN`) con rotación y desplazamiento
 - Rejilla animada en el hero con _drift_ infinito
 - Pulso radial al hoverear nodos
@@ -72,17 +79,23 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 - _Scroll hint_ inicial que guía al usuario a explorar la línea de tiempo
 
 ### 📱 PWA + Responsive
-- Service worker con `autoUpdate` para caché de assets
-- Manifest webapp manual en `public/site.webmanifest`
+
+- Service worker nativo registrado solo en producción
+- Disponibilidad offline del shell, assets generados y fuentes autoalojadas cacheados
+- Manifest estático de web app en `public/site.webmanifest`
 - Diseño adaptable a móviles (header compacto, modal responsive, ocultación de etiquetas de época en viewports pequeños)
 
 ---
 
 ## ✦ Estructura del proyecto
 
-```
+```tree
 /
-├── public/                       # Assets estáticos (favicons, manifest PWA)
+├── public/                       # Assets estáticos, archivos PWA y fuentes
+│   ├── fonts/                     #   Fuentes autoalojadas + licencias OFL
+│   ├── registerSW.js              #   Registro nativo del service worker
+│   ├── site.webmanifest           #   Manifest de web app
+│   └── sw.js                      #   Lógica nativa offline/caché
 ├── src/
 │   ├── components/               # 6 componentes Astro
 │   │   ├── Header.astro          #   Navegación + filtros + toggle de tema
@@ -107,7 +120,7 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 │   │   └── main.css              #   Único CSS (~1343 líneas, variables CSS)
 │   └── pages/
 │       └── index.astro           #   SPA de una sola página
-├── astro.config.mjs              # Configuración de Astro + PWA
+├── astro.config.mjs              # Salida estática de Astro + base de GitHub Pages
 ├── package.json
 └── tsconfig.json
 ```
@@ -124,6 +137,8 @@ Un mapa interactivo que rastrea las estrategias de ruptura y discontinuidad a tr
 | `npm run preview`         | Previsualiza la build localmente                  |
 | `npm run deploy`          | Despliega `./dist/` en GitHub Pages vía `gh-pages`|
 | `npm run astro ...`       | Ejecuta comandos de Astro CLI                     |
+
+`npm run deploy` publica el directorio `./dist/` existente; ejecuta antes `npm run build`.
 
 ---
 

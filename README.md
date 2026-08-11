@@ -14,12 +14,12 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 
 | Layer         | Technology                                                                |
 | :------------ | :------------------------------------------------------------------------ |
-| Framework     | **[Astro v6](https://astro.build)** (static site generator)               |
+| Framework     | **[Astro v7](https://astro.build)** (static site generator)               |
 | Language      | **TypeScript** (client scripts) + vanilla **CSS** (no UI frameworks)      |
 | Bundler       | **Vite** (under the hood of Astro)                                        |
-| PWA           | `@vite-pwa/astro` + `vite-plugin-pwa` (Workbox) — basic offline support   |
+| PWA           | Native service worker — no external PWA dependencies                      |
 | Deployment    | `gh-pages` → **GitHub Pages**                                             |
-| Typography    | Google Fonts: Syne, DM Mono, Cormorant Garamond                           |
+| Typography    | Self-hosted fonts: Syne, DM Mono, Cormorant Garamond                      |
 | Node          | `>=22.12.0`, npm                                                          |
 
 ---
@@ -27,6 +27,7 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 ## ✦ Features
 
 ### 🎯 Interactive Timeline
+
 - Horizontal chronological axis with **adjustable zoom** (60%–200%)
 - **4 thematic tracks**: Literature, Cinema, Music, and Visual Arts
 - **35+ milestones** with animated nodes, emoji icons, and discipline-coded colors
@@ -34,11 +35,13 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 - Smooth horizontal scrolling with custom scrollbar
 
 ### 🔍 Discipline Filter
+
 - Header buttons to filter events by discipline
 - Smooth opacity transitions
 - Chromatic distinction: each discipline has its own CSS variable (`--lit`, `--cin`, `--mus`, `--vis`)
 
 ### 🖼️ Detail Modal
+
 - Click any node to open a detail modal displaying:
   - Title, creator, year, and discipline
   - Description and textual quote
@@ -48,23 +51,27 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 - Close by clicking outside, pressing ×, or the Escape key
 
 ### 🔗 Interdisciplinary Connections
+
 - Bottom section tracing **genealogies of ideas** across disciplines
 - Cards with direction arrow color-coded by discipline
 - Examples: Cubism → Literary Collage, Dada → Glitch Art
 
 ### 🌗 Dark / Light Mode
+
 - Header toggle with sliding animation
 - `localStorage` persistence
 - Inline **anti-FOUC** script that applies the theme before first paint
 - 40+ CSS variables swapped on theme switch
 
 ### 🖱️ Custom Cursor
+
 - Accent dot following the mouse in real time
 - Secondary ring with smooth interpolation (`requestAnimationFrame`)
 - `mix-blend-mode: exclusion` effect
 - Grows larger when hovering over interactive nodes
 
 ### 🎨 Animations & Micro-interactions
+
 - Staggered letter entrance for the title (`FRAG·MENTACIÓN`) with rotation and translation
 - Animated grid in the hero section with infinite drift
 - Radial pulse on node hover
@@ -72,17 +79,23 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 - Initial scroll hint guiding users to explore the timeline
 
 ### 📱 PWA + Responsive
-- Service worker with `autoUpdate` for asset caching
-- Manual webapp manifest at `public/site.webmanifest`
+
+- Native service worker registered in production only
+- Offline availability for the cached shell, generated assets, and self-hosted fonts
+- Static web app manifest at `public/site.webmanifest`
 - Mobile-adaptive design (compact header, responsive modal, hidden era labels on small viewports)
 
 ---
 
 ## ✦ Project Structure
 
-```
+```tree
 /
-├── public/                       # Static assets (favicons, PWA manifest)
+├── public/                       # Static assets, PWA files, and fonts
+│   ├── fonts/                     #   Self-hosted fonts + OFL licenses
+│   ├── registerSW.js              #   Native service worker registration
+│   ├── site.webmanifest           #   Web app manifest
+│   └── sw.js                      #   Native offline/cache logic
 ├── src/
 │   ├── components/               # 6 Astro components
 │   │   ├── Header.astro          #   Navigation + filters + theme toggle
@@ -107,7 +120,7 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 │   │   └── main.css              #   Single CSS file (~1343 lines, CSS variables)
 │   └── pages/
 │       └── index.astro           #   Single-page application
-├── astro.config.mjs              # Astro + PWA configuration
+├── astro.config.mjs              # Astro static output + GitHub Pages base
 ├── package.json
 └── tsconfig.json
 ```
@@ -124,6 +137,8 @@ An interactive map tracing the strategies of rupture and discontinuity across 20
 | `npm run preview`         | Preview the build locally                         |
 | `npm run deploy`          | Deploy `./dist/` to GitHub Pages via `gh-pages`   |
 | `npm run astro ...`       | Run Astro CLI commands                            |
+
+`npm run deploy` publishes the existing `./dist/` directory; run `npm run build` first.
 
 ---
 
